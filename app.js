@@ -22,8 +22,19 @@ app.use(bodyParser.json())
 
 
 app.post('/registration', (req, res) => {
-  console.log("Successfully received registration data: ", req.body);
+  console.log("Successfully received registration data:\n", req.body);
+  // validate probably again
   res.status(200).send();
+
+  // save to mongo db
+  new Registration(req.body)
+    .save()
+    .then(registration => {
+      console.log("Successfully saved registration data to MongoDB\n", registration);
+    })
+    .catch(err => {
+      console.error("Failed to save registration data to MongoDB", err)
+    })
 });
 
 
