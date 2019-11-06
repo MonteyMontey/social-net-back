@@ -2,6 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
+const registrationValidation = require('./app/helpers/registrationValidation');
+
 const app = express();
 
 // Connect to mongoose
@@ -9,11 +11,11 @@ mongoose.connect('mongodb+srv://montey:montey@freetiercluster-wg6nd.mongodb.net/
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
-.then(() => console.log('MongoDB connected successfully!'))
-.catch(err => console.log(err));
+  .then(() => console.log('MongoDB connected successfully!'))
+  .catch(err => console.log(err));
 
 // Load model
-require('./models/Registration');
+require('./app/models/Registration');
 const Registration = mongoose.model('registration');
 
 // body parser middleware
@@ -23,20 +25,25 @@ app.use(bodyParser.json())
 
 app.post('/registration', (req, res) => {
   console.log("Successfully received registration data:\n", req.body);
-  // validate probably again
-  res.status(200).send();
 
-  // save to mongo db
-  new Registration(req.body)
-    .save()
-    .then(registration => {
-      console.log("Successfully saved registration data to MongoDB\n", registration);
-    })
-    .catch(err => {
-      console.error("Failed to save registration data to MongoDB", err)
-    })
+  if (registrationValidation.isRegistrationValid(req.body)) {
+
+    new Registration(req.body)
+      .save()
+      .then(registration => {
+        console.log("Successfully saved registration data to MongoDB\n", registration);
+        res.status(200).send();
+      })
+      .catch(err => {
+        console.error("Failed to save registration data to MongoDB", err);
+        res.status(500).send();
+      })
+
+  } else {
+    console.error("Invalid registration data")
+    res.status(400).send();
+  }
 });
-
 
 app.get('/', (req, res) => {
   res.send("Index page");
@@ -45,6 +52,6 @@ app.get('/', (req, res) => {
 
 const port = 5000;
 
-app.listen(port,() => {
+app.listen(port, () => {
   console.log(`Server started on port ${port}`);
 });
