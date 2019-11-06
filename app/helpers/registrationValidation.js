@@ -1,23 +1,17 @@
 module.exports = {
 
   isNameValid: (name) => {
-    if (name.length < 3 || name.length > 20) {
-      return false
-    }
+    if (name.length < 3 || name.length > 20) return false
     return new RegExp("[a-zA-Z_0-9]*").test(name)
   },
 
   isEmailValid: (email) => {
-    if (email.length > 254) {
-      return false
-    }
+    if (email.length > 254) return false
     return new RegExp("^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$").test(email)
   },
 
   isPasswordValid: (password) => {
-    if (password.length < 8 || password.length > 25) {
-      return false
-    }
+    if (password.length < 8 || password.length > 25) return false
     return new RegExp("[a-zA-Z0-9_$!%^*#/\()?]*").test(password)
   },
 

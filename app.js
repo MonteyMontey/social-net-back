@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const bcrypt = require('bcryptjs');
 
 const registrationValidation = require('./app/helpers/registrationValidation');
 
@@ -24,20 +25,27 @@ app.use(bodyParser.json())
 
 
 app.post('/registration', (req, res) => {
-  console.log("Successfully received registration data:\n", req.body);
+  let registrationData = req.body;
+  console.log("Successfully received registration data:\n", registrationData);
 
-  if (registrationValidation.isRegistrationValid(req.body)) {
+  if (registrationValidation.isRegistrationValid(registrationData)) {
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(registrationData.password, salt, (err, hash) => {
+        if (err) throw err;
+        registrationData.password = hash;
 
-    new Registration(req.body)
-      .save()
-      .then(registration => {
-        console.log("Successfully saved registration data to MongoDB\n", registration);
-        res.status(200).send();
-      })
-      .catch(err => {
-        console.error("Failed to save registration data to MongoDB", err);
-        res.status(500).send();
-      })
+        new Registration(registrationData)
+          .save()
+          .then(registration => {
+            console.log("Successfully saved registration data to MongoDB\n", registration);
+            res.status(200).send();
+          })
+          .catch(err => {
+            console.error("Failed to save registration data to MongoDB", err);
+            res.status(500).send();
+          })
+      });
+    });
 
   } else {
     console.error("Invalid registration data")
