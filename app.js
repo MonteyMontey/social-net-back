@@ -15,13 +15,34 @@ mongoose.connect('mongodb+srv://montey:montey@freetiercluster-wg6nd.mongodb.net/
   .then(() => console.log('MongoDB connected successfully!'))
   .catch(err => console.log(err));
 
-// Load model
+// Load models
 require('./app/models/User');
+require('./app/models/Post');
 const Registration = mongoose.model('users');
+const Post = mongoose.model('posts');
 
 // body parser middleware
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
+
+app.post('/post', (req, res) => {
+  let postData = req.body;
+  console.log("Successfully received post data:\n", postData);
+
+  bcrypt.genSalt(10, (err, salt) => {
+
+    new Post(postData)
+      .save()
+      .then(post => {
+        console.log("Successfully saved post data to MongoDB\n", post);
+        res.status(200).send();
+      })
+      .catch(err => {
+        console.error("Failed to save post data to MongoDB", err);
+        res.status(500).send();
+      })
+  });
+});
 
 
 app.post('/registration', (req, res) => {
