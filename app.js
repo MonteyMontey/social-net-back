@@ -16,8 +16,8 @@ mongoose.connect('mongodb+srv://montey:montey@freetiercluster-wg6nd.mongodb.net/
   .catch(err => console.log(err));
 
 // Load model
-require('./app/models/Registration');
-const Registration = mongoose.model('registration');
+require('./app/models/User');
+const Registration = mongoose.model('users');
 
 // body parser middleware
 app.use(bodyParser.urlencoded({ extended: false }))
