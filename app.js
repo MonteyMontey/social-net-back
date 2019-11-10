@@ -25,6 +25,17 @@ const Post = mongoose.model('posts');
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
+app.get('/posts', (req, res) => {
+  Post.find({})
+  .then(stories => {
+    res.send(stories);
+  })
+  .catch(err => {
+    console.error("Failed to fetch post data from MongoDB", err);
+    res.status(500).send();
+  })
+});
+
 app.post('/post', (req, res) => {
   let postData = req.body;
   console.log("Successfully received post data:\n", postData);
