@@ -8,7 +8,11 @@ const Post = mongoose.model('posts');
 
 // Read Posts
 router.get('/', (req, res) => {
-  Post.find({})
+
+  Post
+    .find(req.query.oldestFetchedPostID === "" ? {} : { _id: { $lt: req.query.oldestFetchedPostID  }})
+    .sort({ '_id': -1 })
+    .limit(parseInt(req.query.numberOfPostsToFetch, 10))
     .then(posts => {
       res.send(posts);
     })
