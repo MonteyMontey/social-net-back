@@ -8,6 +8,7 @@ const app = express();
 // Load routes
 const posts = require('./app/routes/posts');
 const users = require('./app/routes/users');
+const login = require('./app/routes/login');
 
 // Connect to mongoose
 mongoose.connect('mongodb+srv://montey:montey@freetiercluster-wg6nd.mongodb.net/test?retryWrites=true&w=majority', {
@@ -24,6 +25,7 @@ app.use(bodyParser.json())
 // Use routes
 app.use('/posts', posts);
 app.use('/users', users);
+app.use('/login', login);
 
 // Start server
 const port = 5000;

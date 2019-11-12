@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const bcrypt = require('bcryptjs');
 
 const UserSchema = new Schema({
   firstName: {
@@ -31,5 +32,12 @@ const UserSchema = new Schema({
     default: Date.now
   }
 });
+
+UserSchema.methods.comparePassword = function(candidatePassword, callback) {
+  bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
+      if (err) return callback(err);
+      callback(null, isMatch);
+  });
+};
 
 mongoose.model('users', UserSchema);
