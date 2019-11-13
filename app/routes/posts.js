@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
+const withAuth = require('../helpers/withAuth');
 
 // Load models
 require('../models/Post');
 const Post = mongoose.model('posts');
 
 // Read Posts
-router.get('/', (req, res) => {
+router.get('/', withAuth, (req, res) => {
 
   Post
     .find(req.query.oldestFetchedPostID ? { _id: { $lt: req.query.oldestFetchedPostID } } : {})
@@ -23,7 +24,7 @@ router.get('/', (req, res) => {
 });
 
 // Create Post
-router.post('/', (req, res) => {
+router.post('/', withAuth, (req, res) => {
   let postData = req.body;
 
   new Post(postData)

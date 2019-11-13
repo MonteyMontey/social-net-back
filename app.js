@@ -1,6 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const cookieParser = require('cookie-parser');
+const withAuth = require('./app/helpers/withAuth');
 
 // Initialize express
 const app = express();
@@ -18,6 +20,9 @@ mongoose.connect('mongodb+srv://montey:montey@freetiercluster-wg6nd.mongodb.net/
   .then(() => console.log('MongoDB connected successfully!'))
   .catch(err => console.log(err));
 
+// Cookie parser middleware
+app.use(cookieParser());
+
 // Body parser middleware
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
@@ -26,6 +31,10 @@ app.use(bodyParser.json())
 app.use('/posts', posts);
 app.use('/users', users);
 app.use('/login', login);
+
+app.get('/checkToken', withAuth, function (req, res) {
+  res.sendStatus(200);
+});
 
 // Start server
 const port = 5000;

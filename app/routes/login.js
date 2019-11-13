@@ -1,23 +1,29 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 // Load models
 require('../models/User');
 const User = mongoose.model('users');
 
+
 // Check if login valid
 router.post('/', (req, res) => {
-
-  User.findOne({ email: req.body.email }, function (err, user) {
+  const { email, password } = req.body;
+  User.findOne({ email: email }, (err, user) => {
     if (err) throw err;
-
-    user.comparePassword(req.body.password, function (err, isMatch) {
+    user.comparePassword(password, (err, isMatch) => {
       if (err) throw err;
-
+      
       if (isMatch) {
         console.log("valid login");
-        res.status(200).send();
+        const payload = { email };
+        const token = jwt.sign(payload, process.env.SECRET, { expiresIn: '1h' });
+        res.cookie('token', token, { httpOnly: true }).sendStatus(200);
       } else {
         console.log("invalid login");
         res.status(401).send();
