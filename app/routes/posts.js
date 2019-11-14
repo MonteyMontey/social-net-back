@@ -49,7 +49,14 @@ router.post('/', withAuth, (req, res) => {
     .save()
     .then(post => {
       console.log("Successfully saved posts to MongoDB\n", post);
-      res.status(200).send();
+      post.populate('user').execPopulate()
+        .then(populatedPost => {
+          res.status(200).send(populatedPost);
+        })
+        .catch(err => {
+          console.log("Saved to database but couldn't populate post", err);
+          res.status(500).send();
+        })
     })
     .catch(err => {
       console.error("Failed to save post data to MongoDB", err);
