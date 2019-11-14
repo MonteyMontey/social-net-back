@@ -2,18 +2,22 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const withAuth = require('../helpers/withAuth');
+const jwt = require('jsonwebtoken');
 
 // Load models
 require('../models/Post');
 const Post = mongoose.model('posts');
+require('../models/User');
+const User = mongoose.model('users');
+
 
 // Read Posts
 router.get('/', withAuth, (req, res) => {
-
   Post
     .find(req.query.oldestFetchedPostID ? { _id: { $lt: req.query.oldestFetchedPostID } } : {})
     .sort({ '_id': -1 })
     .limit(parseInt(req.query.numberOfPostsToFetch, 10))
+    .populate('user')
     .then(posts => {
       res.send(posts);
     })
@@ -25,7 +29,21 @@ router.get('/', withAuth, (req, res) => {
 
 // Create Post
 router.post('/', withAuth, (req, res) => {
+  const token =
+    req.body.token ||
+    req.query.token ||
+    req.headers['x-access-token'] ||
+    req.cookies.token;
+
   let postData = req.body;
+
+  jwt.verify(token, process.env.SECRET, function (err, decoded) {
+    if (err) {
+      res.status(401).send('Unauthorized: Invalid token');
+    } else {
+      postData.user = decoded.id;
+    }
+  });
 
   new Post(postData)
     .save()

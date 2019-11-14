@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
+const withAuth = require('../helpers/withAuth');
 
 const userValidator = require('../helpers/userValidator');
 
@@ -12,6 +13,20 @@ dotenv.config();
 // Load models
 require('../models/User');
 const User = mongoose.model('users');
+
+// Read user
+router.get('/', withAuth, (req, res) => {
+  User
+    .findOne({ _id: req.query.id })
+    .then(user => {
+      res.send(user);
+    })
+    .catch(err => {
+      console.error("Failed to fetch user from MongoDB", err);
+      res.status(500).send();
+    })
+});
+
 
 // Create user
 router.post('/', (req, res) => {
@@ -25,12 +40,12 @@ router.post('/', (req, res) => {
         if (err) throw err;
         userData.password = hash;
 
-        const email = userData.email;
         new User(userData)
           .save()
           .then(userData => {
             console.log("Successfully saved registration data to MongoDB\n", userData);
-            const payload = { email };
+            const id = userData._id;
+            const payload = { id };
             const token = jwt.sign(payload, process.env.SECRET, { expiresIn: '1h' });
             res.cookie('token', token, { httpOnly: true }).sendStatus(200);
           })

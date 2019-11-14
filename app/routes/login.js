@@ -20,8 +20,9 @@ router.post('/', (req, res) => {
       if (err) throw err;
       
       if (isMatch) {
-        console.log("valid login");
-        const payload = { email };
+        console.log("valid login", user);
+        const id = user._id;
+        const payload = { id };
         const token = jwt.sign(payload, process.env.SECRET, { expiresIn: '1h' });
         res.cookie('token', token, { httpOnly: true }).sendStatus(200);
       } else {
