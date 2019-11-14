@@ -24,7 +24,7 @@ router.post('/', (req, res) => {
         const id = user._id;
         const payload = { id };
         const token = jwt.sign(payload, process.env.SECRET, { expiresIn: '1h' });
-        res.cookie('token', token, { httpOnly: true }).sendStatus(200);
+        res.cookie('token', token).sendStatus(200);
       } else {
         console.log("invalid login");
         res.status(401).send();

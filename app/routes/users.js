@@ -47,7 +47,7 @@ router.post('/', (req, res) => {
             const id = userData._id;
             const payload = { id };
             const token = jwt.sign(payload, process.env.SECRET, { expiresIn: '1h' });
-            res.cookie('token', token, { httpOnly: true }).sendStatus(200);
+            res.cookie('token', token).sendStatus(200);
           })
           .catch(err => {
             console.error("Failed to save registration data to MongoDB", err);
