@@ -13,8 +13,12 @@ const User = mongoose.model('users');
 
 // Read Posts
 router.get('/', withAuth, (req, res) => {
+
+  let query = req.query.oldestFetchedPostID ? { _id: { $lt: req.query.oldestFetchedPostID }} : {};
+  query = req.query.userID ? {...query, user: req.query.userID} : query;
+
   Post
-    .find(req.query.oldestFetchedPostID ? { _id: { $lt: req.query.oldestFetchedPostID } } : {})
+    .find(query)
     .sort({ '_id': -1 })
     .limit(parseInt(req.query.numberOfPostsToFetch, 10))
     .populate('user')
