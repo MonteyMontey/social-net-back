@@ -14,7 +14,8 @@ const User = mongoose.model('users');
 // Read Posts
 router.get('/', withAuth, (req, res) => {
 
-  let query = req.query.oldestFetchedPostID ? { _id: { $lt: req.query.oldestFetchedPostID }} : {};
+  let query = {};
+  query = req.query.oldestFetchedPostID ? { ...query, _id: { $lt: req.query.oldestFetchedPostID }} : query;
   query = req.query.userID ? {...query, user: req.query.userID} : query;
 
   Post
