@@ -11,6 +11,7 @@ const app = express();
 const posts = require('./app/routes/posts');
 const users = require('./app/routes/users');
 const login = require('./app/routes/login');
+const neo4j = require('./app/routes/neo4j');
 
 // Connect to mongoose
 mongoose.connect('mongodb+srv://montey:montey@freetiercluster-wg6nd.mongodb.net/test?retryWrites=true&w=majority', {
@@ -31,6 +32,7 @@ app.use(bodyParser.json())
 app.use('/posts', posts);
 app.use('/users', users);
 app.use('/login', login);
+app.use('/neo4j', neo4j);
 
 app.get('/checkToken', withAuth, function (req, res) {
   res.sendStatus(200);

@@ -41,7 +41,7 @@ router.post('/', withAuth, (req, res) => {
     req.cookies.token;
 
   let postData = req.body;
-
+  
   jwt.verify(token, process.env.SECRET, function (err, decoded) {
     if (err) {
       res.status(401).send('Unauthorized: Invalid token');
