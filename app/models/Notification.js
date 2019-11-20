@@ -22,7 +22,8 @@ const NotificationSchema = new Schema({
   },
   isRead: {
     type: Boolean,
-    required: true
+    required: true,
+    default: false
   },
   createdAt: {
     type: Date,

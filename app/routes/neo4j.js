@@ -1,9 +1,12 @@
 const express = require('express');
 const neo4j = require('neo4j-driver').v1;
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 
 const withAuth = require('../helpers/withAuth');
+require('../models/Notification');
 
+const Notification = mongoose.model('notifications');
 const router = express.Router();
 const driver = neo4j.driver("bolt://localhost", neo4j.auth.basic("neo4j", "kVhcgyDoGbTSWprbuTjr"));
 const session = driver.session();
@@ -28,12 +31,26 @@ router.post('/friendRequest', (req, res) => {
   )
     .then(result => {
       session.close();
-      res.status(200).send();
+
+      let notificationData = {};
+      notificationData.sender = sessionId;
+      notificationData.receiver = personId;
+      notificationData.type = "FriendRequest";
+
+      new Notification(notificationData)
+        .save()
+        .then(notification => {
+          res.status(200).send();
+        })
+        .catch(err => {
+          console.error(err);
+          res.status(500).send();
+        })
     })
     .catch(err => {
       console.error(err);
       session.close();
-      res.status(404).send();
+      res.status(500).send();
     });
 });
 
