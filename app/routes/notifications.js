@@ -23,6 +23,8 @@ router.get('/', withAuth, (req, res) => {
 
   Notification
     .find({ receiver: sessionId })
+    .populate('sender')
+    .populate('receiver')
     .then(notification => {
       res.status(200).send(notification);
     })
