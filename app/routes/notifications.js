@@ -8,6 +8,19 @@ const withAuth = require('../helpers/withAuth');
 require('../models/Notification');
 const Notification = mongoose.model('notifications');
 
+router.post('/', withAuth, (req, res) => {
+  ids = req.body;
+
+  Notification.updateMany({ _id: {"$in": ids} }, { isRead: true })
+    .then(_ => {
+      console.log("updated notification read status")
+      res.status(200).send();
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).send();
+    })
+});
 
 router.get('/', withAuth, (req, res) => {
 
