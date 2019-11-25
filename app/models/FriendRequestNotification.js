@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const NotificationSchema = new Schema({
+const FriendRequestNotificationSchema = new Schema({
   sender: {
     type: Schema.Types.ObjectId,
     ref: 'users',
@@ -12,17 +12,16 @@ const NotificationSchema = new Schema({
     ref: 'users',
     required: true
   },
-  type: {
-    type: String,
-    required: true
-  },
-  body: {
-    type: String,
-    required: false
-  },
   isRead: {
     type: Boolean,
-    required: true,
+    default: false
+  },
+  accepted: {
+    type: Boolean,
+    default: false
+  },
+  declined: {
+    type: Boolean,
     default: false
   },
   createdAt: {
@@ -31,4 +30,4 @@ const NotificationSchema = new Schema({
   }
 });
 
-mongoose.model('notifications', NotificationSchema);
+mongoose.model('friendRequestNotifications', FriendRequestNotificationSchema);

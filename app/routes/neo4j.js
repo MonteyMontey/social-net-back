@@ -4,12 +4,40 @@ const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 
 const withAuth = require('../helpers/withAuth');
-require('../models/Notification');
+require('../models/FriendRequestNotification');
 
-const Notification = mongoose.model('notifications');
+const FriendRequestNotification = mongoose.model('friendRequestNotifications');
 const router = express.Router();
 const driver = neo4j.driver("bolt://localhost", neo4j.auth.basic("neo4j", "kVhcgyDoGbTSWprbuTjr"));
 const session = driver.session();
+
+router.put('/friendRequest', (req, res) => {
+  if (req.body.status === "accepted") {
+    session.run('MATCH (a:Person{id: $sender})-[r:FriendRequest]-(b:Person{id: $receiver}) DELETE r CREATE (a)-[:Friends]->(b)',
+      { sender: req.body.sender._id, receiver: req.body.receiver._id }
+    )
+      .then(_ => {
+        session.close();
+      })
+      .catch(err => {
+        console.error(err);
+        session.close();
+        res.status(500).send();
+      });
+  } else {
+    session.run('MATCH (a:Person{id: $sender})-[r:FriendRequest]-(b:Person{id: $receiver}) SET r.declined=TRUE',
+      { sender: req.body.sender._id, receiver: req.body.receiver._id }
+    )
+      .then(_ => {
+        session.close();
+      })
+      .catch(err => {
+        console.error(err);
+        session.close();
+        res.status(500).send();
+      });
+  }
+});
 
 
 router.post('/friendRequest', (req, res) => {
@@ -29,17 +57,16 @@ router.post('/friendRequest', (req, res) => {
   session.run('MERGE (a:Person{id: $sessionId}) MERGE (b:Person{id: $personId}) MERGE (a)-[:FriendRequest]->(b)',
     { personId: personId, sessionId: sessionId }
   )
-    .then(result => {
+    .then(_ => {
       session.close();
 
-      let notificationData = {};
-      notificationData.sender = sessionId;
-      notificationData.receiver = personId;
-      notificationData.type = "FriendRequest";
+      let friendRequestNotificationData = {};
+      friendRequestNotificationData.sender = sessionId;
+      friendRequestNotificationData.receiver = personId;
 
-      new Notification(notificationData)
+      new FriendRequestNotification(friendRequestNotificationData)
         .save()
-        .then(notification => {
+        .then(_ => {
           res.status(200).send();
         })
         .catch(err => {

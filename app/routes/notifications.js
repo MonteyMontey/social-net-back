@@ -5,15 +5,16 @@ const jwt = require('jsonwebtoken');
 const withAuth = require('../helpers/withAuth');
 
 // Load models
-require('../models/Notification');
-const Notification = mongoose.model('notifications');
+require('../models/FriendRequestNotification');
+const FriendRequestNotification = mongoose.model('friendRequestNotifications');
 
-router.post('/', withAuth, (req, res) => {
-  ids = req.body;
+router.put('/friendRequests', withAuth, (req, res) => {
+  ids = req.body.ids;
+  update = req.body.update;
 
-  Notification.updateMany({ _id: {"$in": ids} }, { isRead: true })
+  FriendRequestNotification.updateMany({ _id: { "$in": ids } }, update)
     .then(_ => {
-      console.log("updated notification read status")
+      console.log("updated friend request notifications")
       res.status(200).send();
     })
     .catch(err => {
@@ -22,8 +23,8 @@ router.post('/', withAuth, (req, res) => {
     })
 });
 
-router.get('/', withAuth, (req, res) => {
 
+router.get('/friendRequests', withAuth, (req, res) => {
   let sessionId = "";
   const token = req.body.token || req.query.token || req.headers['x-access-token'] || req.cookies.token;
   jwt.verify(token, process.env.SECRET, function (err, decoded) {
@@ -34,12 +35,14 @@ router.get('/', withAuth, (req, res) => {
     }
   });
 
-  Notification
+  FriendRequestNotification
     .find({ receiver: sessionId })
+    .sort({ '_id': -1 })
+    .limit(5)
     .populate('sender')
     .populate('receiver')
-    .then(notification => {
-      res.status(200).send(notification);
+    .then(notifications => {
+      res.status(200).send(notifications);
     })
     .catch(err => {
       console.error(err);
