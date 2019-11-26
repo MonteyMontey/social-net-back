@@ -40,4 +40,6 @@ UserSchema.methods.comparePassword = function(candidatePassword, callback) {
   });
 };
 
+//UserSchema.index({firstName: 'text', lastName: 'text'});
+
 mongoose.model('users', UserSchema);

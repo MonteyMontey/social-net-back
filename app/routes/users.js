@@ -14,6 +14,19 @@ dotenv.config();
 require('../models/User');
 const User = mongoose.model('users');
 
+// textsearch users
+router.get('/textsearch', withAuth, (req, res) => {
+  User.find({ $or:[{ firstName: { $regex: req.query.inputValue, $options: 'i' } }, { lastName: { $regex: req.query.inputValue, $options: 'i' } }] })
+    .limit(10)
+    .then(users => {
+      res.status(200).send(users);
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).send();
+    })
+});
+
 // Read user
 router.get('/', withAuth, (req, res) => {
   User
