@@ -3,9 +3,13 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const withAuth = require('./app/helpers/withAuth');
+const dotenv = require('dotenv');
 
 // Initialize express
 const app = express();
+
+// Load env variables
+dotenv.config();
 
 // Load routes
 const posts = require('./app/routes/posts');
@@ -15,7 +19,7 @@ const neo4j = require('./app/routes/neo4j');
 const notifications = require('./app/routes/notifications');
 
 // Connect to mongoose
-mongoose.connect('mongodb+srv://montey:montey@freetiercluster-wg6nd.mongodb.net/test?retryWrites=true&w=majority', {
+mongoose.connect(process.env.MONGODB_CONNECTION, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })

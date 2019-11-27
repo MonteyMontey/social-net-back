@@ -2,13 +2,17 @@ const express = require('express');
 const neo4j = require('neo4j-driver').v1;
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+
 
 const withAuth = require('../helpers/withAuth');
 require('../models/FriendRequestNotification');
 
+dotenv.config();
+
 const FriendRequestNotification = mongoose.model('friendRequestNotifications');
 const router = express.Router();
-const driver = neo4j.driver("bolt://localhost", neo4j.auth.basic("neo4j", "kVhcgyDoGbTSWprbuTjr"));
+const driver = neo4j.driver(process.env.NEO4J_URL, neo4j.auth.basic(process.env.NEO4J_USER, process.env.NEO4J_PASSWORD));
 const session = driver.session();
 
 router.put('/friendRequest', (req, res) => {
