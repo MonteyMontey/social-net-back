@@ -59,7 +59,7 @@ router.post('/', (req, res) => {
             console.log("Successfully saved registration data to MongoDB\n", userData);
             const id = userData._id;
             const payload = { id };
-            const token = jwt.sign(payload, process.env.SECRET, { expiresIn: '1h' });
+            const token = jwt.sign(payload, process.env.SECRET, { expiresIn: '1d' });
             res.cookie('token', token).sendStatus(200);
           })
           .catch(err => {

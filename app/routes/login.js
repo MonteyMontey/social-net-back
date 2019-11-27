@@ -23,7 +23,7 @@ router.post('/', (req, res) => {
         console.log("valid login", user);
         const id = user._id;
         const payload = { id };
-        const token = jwt.sign(payload, process.env.SECRET, { expiresIn: '1h' });
+        const token = jwt.sign(payload, process.env.SECRET, { expiresIn: '1d' });
         res.cookie('token', token).sendStatus(200);
       } else {
         console.log("invalid login");
