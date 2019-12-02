@@ -78,7 +78,6 @@ router.get('/alerts', withAuth, (req, res) => {
   Alert
     .find({ receiver: sessionId })
     .sort({ '_id': -1 })
-    .limit(5)
     .then(alerts => {
       res.status(200).send(alerts);
     })
@@ -103,7 +102,6 @@ router.get('/friendRequests', withAuth, (req, res) => {
   FriendRequestNotification
     .find({ receiver: sessionId })
     .sort({ '_id': -1 })
-    .limit(5)
     .populate('sender')
     .populate('receiver')
     .then(notifications => {
