@@ -15,11 +15,9 @@ const User = mongoose.model('users');
 router.post('/', (req, res) => {
   const { email, password } = req.body;
   User.findOne({ email: email }, (err, user) => {
-    if (err) throw err;
+    if (user && err === null) {
     user.comparePassword(password, (err, isMatch) => {
-      if (err) throw err;
-      
-      if (isMatch) {
+      if (isMatch && err === null) {
         console.log("valid login", user);
         const id = user._id;
         const payload = { id };
@@ -28,9 +26,13 @@ router.post('/', (req, res) => {
       } else {
         console.log("invalid login");
         res.status(401).send();
-      }
-    });
-  });
+      };
+    })
+    } else {
+      console.log("user not found")
+      res.status(401).send();
+    }
+  })
 });
 
 module.exports = router;
