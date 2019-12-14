@@ -40,9 +40,14 @@ app.use('/login', login);
 app.use('/neo4j', neo4j);
 app.use('/notifications', notifications);
 
+app.get('/', function (req, res) {
+  res.send('<h1>Social Network</h1>');
+});
+
 app.get('/checkToken', withAuth, function (req, res) {
   res.sendStatus(200);
 });
+
 
 // Start server
 const port = 5000;
