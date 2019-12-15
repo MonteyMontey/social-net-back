@@ -4,12 +4,19 @@ const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const withAuth = require('./app/helpers/withAuth');
 const dotenv = require('dotenv');
+const cors = require('cors');
 
 // Initialize express
 const app = express();
 
 // Load env variables
 dotenv.config();
+
+// Cross origin resource sharing
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN,
+  optionsSuccessStatus: 200
+}
 
 // Load routes
 const posts = require('./app/routes/posts');
@@ -26,6 +33,9 @@ mongoose.connect(process.env.MONGODB_CONNECTION, {
   .then(() => console.log('MongoDB connected successfully!'))
   .catch(err => console.log(err));
 
+// CORS
+app.use(cors(corsOptions));
+
 // Cookie parser middleware
 app.use(cookieParser());
 
@@ -40,9 +50,14 @@ app.use('/login', login);
 app.use('/neo4j', neo4j);
 app.use('/notifications', notifications);
 
+app.get('/', function (req, res) {
+  res.send('<h1>Social Network</h1>');
+});
+
 app.get('/checkToken', withAuth, function (req, res) {
   res.sendStatus(200);
 });
+
 
 // Start server
 const port = 5000;
