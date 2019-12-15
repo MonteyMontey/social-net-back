@@ -25,6 +25,7 @@
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.7.7",
-    "neo4j-driver": "^1.7.6"
+    "neo4j-driver": "^1.7.6",
+    "winston": "^3.2.1"
   }
 }
