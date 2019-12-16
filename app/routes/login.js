@@ -40,7 +40,7 @@ router.post('/', (req, res) => {
       logger.warn('User login not found', {
         email: email,
         date: new Date()
-      })
+      });
       res.status(401).send();
     }
   })

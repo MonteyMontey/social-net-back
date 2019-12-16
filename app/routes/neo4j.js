@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
+const logger = require('../helpers/logger');
 
 const withAuth = require('../helpers/withAuth');
 require('../models/FriendRequestNotification');
@@ -24,7 +25,10 @@ router.put('/friendRequest', (req, res) => {
         session.close();
       })
       .catch(err => {
-        console.error(err);
+        logger.error('Could not update (accept) friend request', {
+          error: err,
+          date: new Date()
+        });
         session.close();
         res.status(500).send();
       });
@@ -36,7 +40,10 @@ router.put('/friendRequest', (req, res) => {
         session.close();
       })
       .catch(err => {
-        console.error(err);
+        logger.error('Could not update (decline) friend request', {
+          error: err,
+          date: new Date()
+        });
         session.close();
         res.status(500).send();
       });
@@ -74,12 +81,18 @@ router.post('/friendRequest', (req, res) => {
           res.status(200).send();
         })
         .catch(err => {
-          console.error(err);
+          logger.error('Could not create friend request notification', {
+            error: err,
+            date: new Date()
+          });
           res.status(500).send();
         })
     })
     .catch(err => {
-      console.error(err);
+      logger.error('Could not create friend request', {
+        error: err,
+        date: new Date()
+      });
       session.close();
       res.status(500).send();
     });
@@ -110,7 +123,12 @@ router.get('/relationToPerson', withAuth, (req, res) => {
       res.status(200).send(relationship);
     })
     .catch(err => {
-      console.error(err);
+      logger.error('Could not get relationship between', {
+        personA: personId,
+        personB: sessionId,
+        error: err,
+        date: new Date()
+      });
       session.close();
       res.status(404).send();
     });

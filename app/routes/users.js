@@ -8,6 +8,8 @@ const withAuth = require('../helpers/withAuth');
 
 const userValidator = require('../helpers/userValidator');
 
+const logger = require('../helpers/logger');
+
 dotenv.config();
 
 // Load models
@@ -16,13 +18,16 @@ const User = mongoose.model('users');
 
 // textsearch users
 router.get('/textsearch', withAuth, (req, res) => {
-  User.find({ $or:[{ firstName: { $regex: req.query.inputValue, $options: 'i' } }, { lastName: { $regex: req.query.inputValue, $options: 'i' } }] })
+  User.find({ $or: [{ firstName: { $regex: req.query.inputValue, $options: 'i' } }, { lastName: { $regex: req.query.inputValue, $options: 'i' } }] })
     .limit(10)
     .then(users => {
       res.status(200).send(users);
     })
     .catch(err => {
-      console.error(err);
+      logger.error('Could not textsearch user', {
+        error: err,
+        date: new Date
+      });
       res.status(500).send();
     })
 });
@@ -35,7 +40,10 @@ router.get('/', withAuth, (req, res) => {
       res.send(user);
     })
     .catch(err => {
-      console.error("Failed to fetch user from MongoDB", err);
+      logger.error('Could not get user from MongoDB', {
+        error: err,
+        date: new Date
+      });
       res.status(500).send();
     })
 });
@@ -56,20 +64,25 @@ router.post('/', (req, res) => {
         new User(userData)
           .save()
           .then(userData => {
-            console.log("Successfully saved registration data to MongoDB\n", userData);
             const id = userData._id;
             const payload = { id };
             const token = jwt.sign(payload, process.env.SECRET, { expiresIn: '1d' });
             res.cookie('token', token).sendStatus(200);
           })
           .catch(err => {
-            console.error("Failed to save registration data to MongoDB", err);
+            logger.error('Could not save registration data to MongoDB', {
+              error: err,
+              date: new Date
+            });
             res.status(500).send();
           })
       });
     });
   } else {
-    console.error("Invalid registration data")
+    logger.warn('Invalid registration data', {
+      registrationData: userData,
+      date: new Date
+    });
     res.status(400).send();
   }
 });

@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const withAuth = require('../helpers/withAuth');
 const jwt = require('jsonwebtoken');
 
+const logger = require('../helpers/logger');
+
 // Load models
 require('../models/Post');
 const Post = mongoose.model('posts');
@@ -27,7 +29,10 @@ router.get('/', withAuth, (req, res) => {
       res.send(posts);
     })
     .catch(err => {
-      console.error("Failed to fetch posts from MongoDB", err);
+      logger.error("Failed to get posts from MongoDB", {
+        date: new Date(),
+        error: err
+      });
       res.status(500).send();
     })
 });
@@ -53,18 +58,28 @@ router.post('/', withAuth, (req, res) => {
   new Post(postData)
     .save()
     .then(post => {
-      console.log("Successfully saved posts to MongoDB\n", post);
+      logger.info('Successfully saved posts to MongoDB', {
+        post: post,
+        date: new Date
+      });
       post.populate('user').execPopulate()
         .then(populatedPost => {
           res.status(200).send(populatedPost);
         })
         .catch(err => {
-          console.log("Saved to database but couldn't populate post", err);
+          logger.error('Saved post to database but could not populate post', {
+            post: post,
+            error: err,
+            date: new Date()
+          });
           res.status(500).send();
         })
     })
     .catch(err => {
-      console.error("Failed to save post data to MongoDB", err);
+      logger.error('Could not save post to MongoDB', {
+        error: err,
+        date: new Date()
+      });
       res.status(500).send();
     });
 });
