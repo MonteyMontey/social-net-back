@@ -78,7 +78,7 @@ router.post('/friendRequest', (req, res) => {
       new FriendRequestNotification(friendRequestNotificationData)
         .save()
         .then(_ => {
-          res.status(200).send();
+          res.status(201).send();
         })
         .catch(err => {
           logger.error('Could not create friend request notification', {

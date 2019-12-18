@@ -64,7 +64,7 @@ router.post('/', withAuth, (req, res) => {
       });
       post.populate('user').execPopulate()
         .then(populatedPost => {
-          res.status(200).send(populatedPost);
+          res.status(201).send(populatedPost);
         })
         .catch(err => {
           logger.error('Saved post to database but could not populate post', {

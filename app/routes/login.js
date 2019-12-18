@@ -41,7 +41,7 @@ router.post('/', (req, res) => {
         email: email,
         date: new Date()
       });
-      res.status(401).send();
+      res.status(404).send();
     }
   })
 });
