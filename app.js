@@ -34,7 +34,8 @@ mongoose.connect(process.env.MONGODB_CONNECTION, {
   .catch(err => console.log(err));
 
 // CORS
-app.use(cors(corsOptions));
+//app.use(cors(corsOptions));
+app.use(cors());
 
 // Cookie parser middleware
 app.use(cookieParser());
