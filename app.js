@@ -13,10 +13,10 @@ const app = express();
 dotenv.config();
 
 // Cross origin resource sharing
-const corsOptions = {
-  origin: process.env.CORS_ORIGIN,
-  optionsSuccessStatus: 200
-}
+// const corsOptions = {
+//   origin: process.env.CORS_ORIGIN,
+//   optionsSuccessStatus: 200
+// }
 
 // Load routes
 const posts = require('./app/routes/posts');
@@ -34,7 +34,8 @@ mongoose.connect(process.env.MONGODB_CONNECTION, {
   .catch(err => console.log(err));
 
 // CORS
-app.use(cors(corsOptions));
+//app.use(cors(corsOptions));
+//app.use(cors());
 
 // Cookie parser middleware
 app.use(cookieParser());
@@ -60,7 +61,7 @@ app.get('/checkToken', withAuth, function (req, res) {
 
 
 // Start server
-const port = 5000;
+const port = 5333;
 
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);

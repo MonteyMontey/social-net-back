@@ -14,9 +14,11 @@ dotenv.config();
 const FriendRequestNotification = mongoose.model('friendRequestNotifications');
 const router = express.Router();
 const driver = neo4j.driver(process.env.NEO4J_URL, neo4j.auth.basic(process.env.NEO4J_USER, process.env.NEO4J_PASSWORD));
-const session = driver.session();
+// ['localhost:7687','localhost:7688','localhost:7689','localhost:7690']
 
 router.put('/friendRequest', (req, res) => {
+  const session = driver.session(neo4j.session.WRITE);
+
   if (req.body.status === "accepted") {
     session.run('MATCH (a:Person{id: $sender})-[r:FriendRequest]-(b:Person{id: $receiver}) DELETE r CREATE (a)-[:Friends]->(b)',
       { sender: req.body.sender._id, receiver: req.body.receiver._id }
@@ -52,6 +54,8 @@ router.put('/friendRequest', (req, res) => {
 
 
 router.post('/friendRequest', (req, res) => {
+  const session = driver.session(neo4j.session.WRITE);
+
   const personId = req.body.personId;
   let sessionId = "";
 
@@ -99,6 +103,7 @@ router.post('/friendRequest', (req, res) => {
 });
 
 router.get('/relationToPerson', withAuth, (req, res) => {
+  const session = driver.session(neo4j.session.READ);
 
   const personId = req.query.personId;
   let sessionId = "";
