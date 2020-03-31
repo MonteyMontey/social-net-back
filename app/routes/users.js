@@ -5,10 +5,14 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const withAuth = require('../helpers/withAuth');
+const nodemailer = require('../helpers/nodemailer');
+
 
 const userValidator = require('../helpers/userValidator');
 
 const logger = require('../helpers/logger');
+
+const mailer = new nodemailer();
 
 dotenv.config();
 
@@ -64,6 +68,15 @@ router.post('/', (req, res) => {
         new User(userData)
           .save()
           .then(userData => {
+
+            // send verification email
+            email = userData.email;
+            try {
+              mailer.sendEmailVerification(email)
+            } catch(e) {
+              console.log(e);
+            }
+
             const id = userData._id;
             const payload = { id };
             const token = jwt.sign(payload, process.env.SECRET, { expiresIn: '1d' });
