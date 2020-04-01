@@ -59,6 +59,21 @@ router.post('/', (req, res) => {
   let validator = new userValidator();
 
   if (validator.isUserDataValid(userData)) {
+
+    // send email
+    email = userData.email;
+    try {
+      mailer.sendEmailVerification(email)
+    } catch(e) {
+      logger.error('Verification email could not be sent', {
+        error: err,
+        date: new Date
+      });
+      res.status(500).send();
+      return;
+    }
+
+    // store user in database
     bcrypt.genSalt(10, (err, salt) => {
       if (err) throw err;
       bcrypt.hash(userData.password, salt, (err, hash) => {
@@ -67,20 +82,8 @@ router.post('/', (req, res) => {
 
         new User(userData)
           .save()
-          .then(userData => {
-
-            // send verification email
-            email = userData.email;
-            try {
-              mailer.sendEmailVerification(email)
-            } catch(e) {
-              console.log(e);
-            }
-
-            const id = userData._id;
-            const payload = { id };
-            const token = jwt.sign(payload, process.env.SECRET, { expiresIn: '1d' });
-            res.cookie('token', token).sendStatus(200);
+          .then(() => {
+            res.status(200).send();
           })
           .catch(err => {
             logger.error('Could not save registration data to MongoDB', {
@@ -91,6 +94,7 @@ router.post('/', (req, res) => {
           })
       });
     });
+
   } else {
     logger.warn('Invalid registration data', {
       registrationData: userData,
