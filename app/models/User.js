@@ -7,6 +7,10 @@ const UserSchema = new Schema({
     type: Boolean,
     default: false
   },
+  activationCode: {
+    type: String,
+    required: true
+  },
   firstName: {
     type: String,
     required: true

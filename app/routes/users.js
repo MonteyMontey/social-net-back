@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
-const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
+const crypto = require('crypto');
 const withAuth = require('../helpers/withAuth');
 const nodemailer = require('../helpers/nodemailer');
 
@@ -60,29 +60,32 @@ router.post('/', (req, res) => {
 
   if (validator.isUserDataValid(userData)) {
 
-    // send email
-    email = userData.email;
-    try {
-      mailer.sendEmailVerification(email)
-    } catch(e) {
-      logger.error('Verification email could not be sent', {
-        error: err,
-        date: new Date
-      });
-      res.status(500).send();
-      return;
-    }
-
-    // store user in database
+    // hash password
     bcrypt.genSalt(10, (err, salt) => {
       if (err) throw err;
       bcrypt.hash(userData.password, salt, (err, hash) => {
         if (err) throw err;
         userData.password = hash;
 
+        // create activation code
+        userData.activationCode = crypto.randomBytes(40).toString('hex');
+
+        // store user in database
         new User(userData)
           .save()
           .then(() => {
+
+            //send email
+            try {
+              mailer.sendEmailVerification(userData.email, userData.activationCode)
+            } catch(e) {
+              logger.error('Verification email could not be sent', {
+                error: err,
+                date: new Date
+              });
+              // TODO: mark that email as not sent and queue it in a task that resents it when possible
+            }
+
             res.status(200).send();
           })
           .catch(err => {

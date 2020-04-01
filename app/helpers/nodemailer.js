@@ -16,22 +16,27 @@ class Nodemailer {
     });
   }
   
-  emailVerificationTemplate(emailAddress) {
+  makeVerificationLink(activationCode) {
+    return process.env.VERIFICATION_URL + '/' + activationCode;
+  }
+
+  emailVerificationTemplate(emailAddress, verificationURL) {
     return {
       from: '"Social Net" <no-reply@socialnet.com>', // sender address
       to: emailAddress, // list of receivers
       subject: "Please confirm your email address", // Subject line
-      text: "Dear Customer,\n\nPlease confirm the email from your SocialNet account.\n\nIn order to verify the domain " +
-      "ownership, please copy the following URL to your browser: http://somelink\n\nIf you did not request this email, you can ignore it, and no changes will be " +
-      "made to your account.\n\nIf you need help or advice, please contact our technical support.\n\nBest regards, SocialNet Team.", // plain text body
-      html: "<b>Dear Customer,</b><br><br>Please confirm the email from your SocialNet account.<br><br>In order to verify the domain " +
-      "ownership, please <a href=''>click here</a>.<br><br>If you did not request this email, you can ignore it, and no changes will be " +
-      "made to your account.<br><br>If you need help or advice, please contact our technical support.<br><br><hr><br>Best regards, SocialNet Team." // html body
+      text: `Dear Customer,\n\nPlease confirm the email from your SocialNet account.\n\nIn order to verify the domain ` +
+      `ownership, please copy the following URL to your browser: ${verificationURL}\n\nIf you did not request this email, you can ignore it, and no changes will be ` +
+      `made to your account.\n\nIf you need help or advice, please contact our technical support.\n\nBest regards, SocialNet Team.`, // plain text body
+      html: `<b>Dear Customer,</b><br><br>Please confirm the email from your SocialNet account.<br><br>In order to verify the domain ` +
+      `ownership, please <a href='${verificationURL}'>click here</a>.<br><br>If you did not request this email, you can ignore it, and no changes will be ` +
+      `made to your account.<br><br>If you need help or advice, please contact our technical support.<br><br><hr><br>Best regards, SocialNet Team.` // html body
     }
   }
   
-  sendEmailVerification(emailAddress) {
-    email = this.emailVerificationTemplate(emailAddress)
+  sendEmailVerification(emailAddress, activationCode) {
+    const verificationURL = this.makeVerificationLink(activationCode);
+    const email = this.emailVerificationTemplate(emailAddress, verificationURL)
     this.transporter.sendMail(email);
   }
 
