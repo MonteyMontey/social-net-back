@@ -3,6 +3,14 @@ const Schema = mongoose.Schema;
 const bcrypt = require('bcryptjs');
 
 const UserSchema = new Schema({
+  active: {
+    type: Boolean,
+    default: false
+  },
+  activationCode: {
+    type: String,
+    required: true
+  },
   firstName: {
     type: String,
     required: true

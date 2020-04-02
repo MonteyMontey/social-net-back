@@ -24,6 +24,7 @@ const users = require('./app/routes/users');
 const login = require('./app/routes/login');
 const neo4j = require('./app/routes/neo4j');
 const notifications = require('./app/routes/notifications');
+const activateAccount = require('./app/routes/activateAccount');
 
 // Connect to mongoose
 mongoose.connect(process.env.MONGODB_CONNECTION, {
@@ -50,6 +51,7 @@ app.use('/users', users);
 app.use('/login', login);
 app.use('/neo4j', neo4j);
 app.use('/notifications', notifications);
+app.use('/activate-account', activateAccount);
 
 app.get('/', function (req, res) {
   res.send('<h1>Social Network</h1>');

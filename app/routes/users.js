@@ -2,13 +2,17 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
-const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
+const crypto = require('crypto');
 const withAuth = require('../helpers/withAuth');
+const nodemailer = require('../helpers/nodemailer');
+
 
 const userValidator = require('../helpers/userValidator');
 
 const logger = require('../helpers/logger');
+
+const mailer = new nodemailer();
 
 dotenv.config();
 
@@ -55,19 +59,34 @@ router.post('/', (req, res) => {
   let validator = new userValidator();
 
   if (validator.isUserDataValid(userData)) {
+
+    // hash password
     bcrypt.genSalt(10, (err, salt) => {
       if (err) throw err;
       bcrypt.hash(userData.password, salt, (err, hash) => {
         if (err) throw err;
         userData.password = hash;
 
+        // create activation code
+        userData.activationCode = crypto.randomBytes(40).toString('hex');
+
+        // store user in database
         new User(userData)
           .save()
-          .then(userData => {
-            const id = userData._id;
-            const payload = { id };
-            const token = jwt.sign(payload, process.env.SECRET, { expiresIn: '1d' });
-            res.cookie('token', token).sendStatus(200);
+          .then(() => {
+
+            //send email
+            try {
+              mailer.sendEmailVerification(userData.email, userData.activationCode)
+            } catch(e) {
+              logger.error('Verification email could not be sent', {
+                error: err,
+                date: new Date
+              });
+              // TODO: mark that email as not sent and queue it in a task that resents it when possible
+            }
+
+            res.status(200).send();
           })
           .catch(err => {
             logger.error('Could not save registration data to MongoDB', {
@@ -78,6 +97,7 @@ router.post('/', (req, res) => {
           })
       });
     });
+
   } else {
     logger.warn('Invalid registration data', {
       registrationData: userData,
