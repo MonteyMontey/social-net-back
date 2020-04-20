@@ -20,6 +20,10 @@ class Nodemailer {
     return process.env.VERIFICATION_URL + '/' + activationCode;
   }
 
+  makePasswordResetLink(resetID) {
+    return process.env.PASSWORD_RESET_URL + '/' + resetID;
+  }
+
   emailVerificationTemplate(emailAddress, verificationURL) {
     return {
       from: '"Social Net" <no-reply@socialnet.com>', // sender address
@@ -33,10 +37,28 @@ class Nodemailer {
       `made to your account.<br><br>If you need help or advice, please contact our technical support.<br><br><hr><br>Best regards, SocialNet Team.` // html body
     }
   }
+
+  passwordResetTemplate(emailAddress, resetURL) {
+    return {
+      from: '"Social Net" <no-reply@socialnet.com>',
+      to: emailAddress,
+      subject: "Password reset",
+      text: `Dear Customer, \n\nYou recently requested to reset your password.\n\nIn order to do that, please copy the following URL to your browser: ${resetURL}`+
+      `\n\nThis password reset is only valid for one hour.\n\nBest regards, SocialNet Team.`,
+      html: `<b>Dear Customer,</b><br><br>You recently requested to reset your password.<br><br>In order to do that, please ` +
+      `<a href='${resetURL}'>click here</a>.<br><br>Best regards, SocialNet Team.`
+    }
+  }
   
   sendEmailVerification(emailAddress, activationCode) {
     const verificationURL = this.makeVerificationLink(activationCode);
     const email = this.emailVerificationTemplate(emailAddress, verificationURL)
+    this.transporter.sendMail(email);
+  }
+
+  sendPasswordReset(emailAddress, resetID) {
+    const resetURL = this.makePasswordResetLink(resetID);
+    const email = this.passwordResetTemplate(emailAddress, resetURL);
     this.transporter.sendMail(email);
   }
 
