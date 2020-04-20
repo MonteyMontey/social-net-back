@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 
 const nodemailer = require('../helpers/nodemailer');
+const userValidator = require('../helpers/userValidator');
 
 const mailer = new nodemailer();
 
@@ -20,6 +21,99 @@ require('../models/PasswordReset');
 const PasswordReset = mongoose.model('passwordResets');
 
 
+// user submits new password
+router.put('/', (req, res) => {
+  const newPassword = req.body.newPassword;
+  const resetIDHash = req.body.resetIDHash;
+
+  const passwordValid = new userValidator().isPasswordValid(newPassword);
+
+  if (!passwordValid) {
+    res.status(400).send();
+  } else {
+
+    // hash password
+    let hashedNewPassword;
+
+    bcrypt.genSalt(10, (err, salt) => {
+      if (err) throw err;
+      bcrypt.hash(newPassword, salt, (err, hash) => {
+        if (err) throw err;
+        hashedNewPassword = hash;
+      });
+    });
+
+    // change password and delete password reset
+    PasswordReset.findOne({ "createdAt": { $gte: new Date() - 36e5 }, "resetIDHash": resetIDHash })
+      .then(passwordReset => {
+        if (passwordReset !== null) {
+          const passwordResetID = passwordReset._id;
+
+          User.findByIdAndUpdate(passwordReset.user, { password: hashedNewPassword })
+            .then(() => {
+              PasswordReset.findByIdAndDelete(passwordResetID)
+                .then(() => {
+                  res.status(200).send();
+                })
+                .catch(() => {
+                  // TODO: either rollback password change and return status code 500 
+                  // OR mark it somewhere somehow for another service so that it is removed as soon as possible
+                  res.status(200).send();
+                })
+            })
+            .catch(() => {
+              res.status(500).send();
+            });
+
+        } else {
+          res.status(400).send();
+        }
+      })
+      .catch(() => {
+        res.status(400).send();
+      });
+  }
+});
+
+
+// user goes to reset link
+router.get('/', (req, res) => {
+  const resetID = req.query.resetID;
+
+  PasswordReset.find({ "createdAt": { $gte: new Date() - 36e5 } })
+    .then(passwordResets => {
+
+      let valid = false;
+      let callbackCounter = 0;
+      let resetIDHash;
+
+      for (let i = 0; i < passwordResets.length; i++) {
+        callbackCounter++;
+
+        bcrypt.compare(resetID, passwordResets[i].resetIDHash, (err, result) => {
+          if (result) {
+            valid = true;
+            resetIDHash = passwordResets[i].resetIDHash;
+          }
+          callbackCounter--;
+        });
+      }
+
+      // wait until all callbacks finished
+      waitForCallbacks = () => {
+        if (callbackCounter === 0) {
+          valid ? res.status(200).send({ resetIDHash: resetIDHash }) : res.status(400).send();
+        } else {
+          setTimeout(waitForCallbacks, 100);
+        }
+      }
+      waitForCallbacks();
+    }
+    );
+});
+
+
+// user requests email
 router.post('/', (req, res) => {
   const email = req.body.email;
 
@@ -56,7 +150,7 @@ router.post('/', (req, res) => {
                   });
                   // TODO: mark that email as not sent and queue it in a task that resents it when possible
                 }
-                
+
               })
               .catch(() => {
                 res.status(500).send();
