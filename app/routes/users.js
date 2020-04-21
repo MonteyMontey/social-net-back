@@ -60,43 +60,55 @@ router.post('/', (req, res) => {
 
   if (validator.isUserDataValid(userData)) {
 
-    // hash password
-    bcrypt.genSalt(10, (err, salt) => {
-      if (err) throw err;
-      bcrypt.hash(userData.password, salt, (err, hash) => {
-        if (err) throw err;
-        userData.password = hash;
+    // check if email already in system
+    User.findOne({ email: userData.email })
+      .then(user => {
+        if (user === null) {
 
-        // create activation code
-        userData.activationCode = crypto.randomBytes(40).toString('hex');
+          // hash password
+          bcrypt.genSalt(10, (err, salt) => {
+            if (err) throw err;
+            bcrypt.hash(userData.password, salt, (err, hash) => {
+              if (err) throw err;
+              userData.password = hash;
 
-        // store user in database
-        new User(userData)
-          .save()
-          .then(() => {
+              // create activation code
+              userData.activationCode = crypto.randomBytes(40).toString('hex');
 
-            //send email
-            try {
-              mailer.sendEmailVerification(userData.email, userData.activationCode)
-            } catch(e) {
-              logger.error('Verification email could not be sent', {
-                error: err,
-                date: new Date
-              });
-              // TODO: mark that email as not sent and queue it in a task that resents it when possible
-            }
+              // store user in database
+              new User(userData)
+                .save()
+                .then(() => {
 
-            res.status(200).send();
-          })
-          .catch(err => {
-            logger.error('Could not save registration data to MongoDB', {
-              error: err,
-              date: new Date
+                  //send email
+                  try {
+                    mailer.sendEmailVerification(userData.email, userData.activationCode)
+                  } catch (e) {
+                    logger.error('Verification email could not be sent', {
+                      error: err,
+                      date: new Date
+                    });
+                    // TODO: mark that email as not sent and queue it in a task that resents it when possible
+                  }
+
+                  res.status(200).send();
+                })
+                .catch(err => {
+                  logger.error('Could not save registration data to MongoDB', {
+                    error: err,
+                    date: new Date
+                  });
+                  res.status(500).send();
+                })
             });
-            res.status(500).send();
-          })
+          });
+        } else {
+          res.status(400).send();
+        }
+      })
+      .catch(() => {
+        res.status(500).send();
       });
-    });
 
   } else {
     logger.warn('Invalid registration data', {

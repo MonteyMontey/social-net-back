@@ -49,9 +49,9 @@ router.put('/', (req, res) => {
         if (passwordReset !== null) {
           const passwordResetID = passwordReset._id;
 
-          User.findByIdAndUpdate(passwordReset.user, { password: hashedNewPassword })
+          User.findByIdAndUpdate(passwordReset.user, { password: hashedNewPassword }, { useFindAndModify: false })
             .then(() => {
-              PasswordReset.findByIdAndDelete(passwordResetID)
+              PasswordReset.findByIdAndDelete(passwordResetID, { useFindAndModify: false })
                 .then(() => {
                   res.status(200).send();
                 })
