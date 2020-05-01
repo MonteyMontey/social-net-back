@@ -11,7 +11,7 @@ class UserValidator {
   }
 
   isPasswordValid(password) {
-    if (password.length < 8 || password.length > 256) return false
+    if (password.length < 8 || password.length > 72) return false
     return new RegExp("[a-zA-Z0-9_$!%^*#/\()?]*").test(password)
   }
 
