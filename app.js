@@ -35,6 +35,10 @@ mongoose.connect(process.env.MONGODB_CONNECTION, {
   .then(() => console.log('MongoDB connected successfully!'))
   .catch(err => console.log(err));
 
+
+// trust first proxy
+app.set('trust proxy', 1)
+
 // CORS
 //app.use(cors(corsOptions));
 app.use(cors());
