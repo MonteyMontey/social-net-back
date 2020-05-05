@@ -40,8 +40,8 @@ mongoose.connect(process.env.MONGODB_CONNECTION, {
 app.set('trust proxy', 1)
 
 // CORS
-//app.use(cors(corsOptions));
-app.use(cors());
+app.use(cors(corsOptions));
+//app.use(cors());
 
 // Cookie parser middleware
 app.use(cookieParser());
