@@ -23,8 +23,8 @@ router.post('/', (req, res) => {
           if (isMatch && err === null) {
             const id = user._id;
             const payload = { id };
-            const token = jwt.sign(payload, process.env.SECRET, {expiresIn: "1d"});
-            res.cookie('token', token, {secure: true, domain: "social-net.tech", maxAge: 86400 }).sendStatus(200);
+            const token = jwt.sign(payload, process.env.SECRET, {expiresIn: "1h"});
+            res.cookie('token', token, {secure: true, domain: "social-net.tech", maxAge: 3600000 }).sendStatus(200);
             logger.info('User logged in', {
               user: user,
               date: new Date()
