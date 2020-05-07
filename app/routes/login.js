@@ -24,7 +24,7 @@ router.post('/', (req, res) => {
             const id = user._id;
             const payload = { id };
             const token = jwt.sign(payload, process.env.SECRET, {expiresIn: "1h"});
-            res.cookie('token', token, {secure: true, domain: "social-net.tech", maxAge: 3600000 }).sendStatus(200);
+            res.cookie('token', token, {secure: true, httpOnly: true, domain: "social-net.tech", maxAge: 3600000 }).sendStatus(200);
             logger.info('User logged in', {
               user: user,
               date: new Date()

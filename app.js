@@ -67,6 +67,10 @@ app.get('/checkToken', withAuth, function (req, res) {
   res.sendStatus(200);
 });
 
+app.get('/logout', withAuth, function (req, res) {
+  res.clearCookie('token', {path: '/', domain: 'social-net.tech'}).sendStatus(200);
+});
+
 
 // Start server
 const port = 5000;
