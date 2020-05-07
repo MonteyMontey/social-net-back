@@ -60,7 +60,7 @@ app.use('/activate-account', activateAccount);
 app.use('/reset-password', resetPassword);
 
 app.get('/', function (req, res) {
-  res.send('<h1>Social Network</h1>');
+  res.sendStatus(404);
 });
 
 app.get('/checkToken', withAuth, function (req, res) {
