@@ -18,17 +18,12 @@ router.put('/alerts', withAuth, (req, res) => {
 
   Alert
     .updateMany({ _id: { "$in": ids } }, update)
-    .then(queryRes => {
-      logger.info('Updated alerts', {
-        ids: ids,
-        queryResponse: queryRes,
-        date: new Date()
-      });
+    .then(_ => {
       res.status(200).send();
     })
     .catch(err => {
       console.log(err);
-      logger.error('Could not update alerts', {
+      logger.error('Internal Database Query Failure - Could Not Update Alerts', {
         ids: ids,
         error: err,
         date: new Date()
@@ -59,7 +54,7 @@ router.put('/friendRequests', withAuth, (req, res) => {
             res.status(200).send();
           })
           .catch(err => {
-            logger.error('Could not create alerts', {
+            logger.error('Internal Database Query Failure - Could Not Create Alerts', {
               error: err,
               date: new Date
             });
@@ -71,7 +66,7 @@ router.put('/friendRequests', withAuth, (req, res) => {
       }
     })
     .catch(err => {
-      logger.error('Could not update friend requests', {
+      logger.error('Internal Database Query Failure - Could Not Update Friend Requests', {
         ids: ids,
         error: err,
         date: new Date
@@ -98,7 +93,7 @@ router.get('/alerts', withAuth, (req, res) => {
       res.status(200).send(alerts);
     })
     .catch(err => {
-      logger.error('Could not fetch alert for user', {
+      logger.error('Internal Database Query Failure - Could Not Fetch Alert For User', {
         userId: sessionId,
         error: err,
         date: new Date

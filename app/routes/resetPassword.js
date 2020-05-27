@@ -7,6 +7,7 @@ const bcrypt = require('bcryptjs');
 
 const nodemailer = require('../helpers/nodemailer');
 const userValidator = require('../helpers/userValidator');
+const logger = require('../helpers/logger');
 
 const mailer = new nodemailer();
 
@@ -29,6 +30,10 @@ router.put('/', (req, res) => {
   const passwordValid = new userValidator().isPasswordValid(newPassword);
 
   if (!passwordValid) {
+    logger.warn('Input Validation Failure - Password Reset)', {
+      ip: req.ip,
+      date: new Date
+    });
     res.status(400).send();
   } else {
 
@@ -61,15 +66,24 @@ router.put('/', (req, res) => {
                   res.status(200).send();
                 })
             })
-            .catch(() => {
+            .catch((e) => {
+              logger.error('Internal Database Query Failure - Find User For Password Reset', {
+                error: e,
+                date: new Date
+              });
               res.status(500).send();
             });
 
         } else {
+          // no password reset
           res.status(400).send();
         }
       })
-      .catch(() => {
+      .catch((e) => {
+        logger.error('Internal Database Query Failure - Password Reset', {
+          error: e,
+          date: new Date
+        });
         res.status(400).send();
       });
   }
@@ -143,7 +157,7 @@ router.post('/', (req, res) => {
                 // send email with unhashed id
                 try {
                   mailer.sendPasswordReset(email, resetID);
-                } catch (e) {
+                } catch (err) {
                   logger.error('Password reset email could not be sent', {
                     error: err,
                     date: new Date
@@ -152,7 +166,11 @@ router.post('/', (req, res) => {
                 }
 
               })
-              .catch(() => {
+              .catch((e) => {
+                logger.error('Internal Database Query Failure - Password Reset Could Not Be Saved', {
+                  error: e,
+                  date: new Date
+                });
                 res.status(500).send();
               });
           });

@@ -29,7 +29,7 @@ router.get('/', withAuth, (req, res) => {
       res.send(posts);
     })
     .catch(err => {
-      logger.error("Failed to get posts from MongoDB", {
+      logger.error("Internal Database Query Failure - Failed To Get Posts From MongoDB", {
         date: new Date(),
         error: err
       });
@@ -58,16 +58,12 @@ router.post('/', withAuth, (req, res) => {
   new Post(postData)
     .save()
     .then(post => {
-      logger.info('Successfully saved posts to MongoDB', {
-        post: post,
-        date: new Date
-      });
       post.populate('user').execPopulate()
         .then(populatedPost => {
           res.status(201).send(populatedPost);
         })
         .catch(err => {
-          logger.error('Saved post to database but could not populate post', {
+          logger.error('Internal Database Query Failure - Saved Post To Database But Could Not Populate Post', {
             post: post,
             error: err,
             date: new Date()
@@ -76,7 +72,7 @@ router.post('/', withAuth, (req, res) => {
         })
     })
     .catch(err => {
-      logger.error('Could not save post to MongoDB', {
+      logger.error('Internal Database Query Failure - Could Not Save Post To MongoDB', {
         error: err,
         date: new Date()
       });

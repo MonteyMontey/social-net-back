@@ -25,7 +25,7 @@ router.put('/friendRequest', (req, res) => {
         session.close();
       })
       .catch(err => {
-        logger.error('Could not update (accept) friend request', {
+        logger.error('Internal Neo4j Failure - Could Not Update (Accept) Friend Request', {
           error: err,
           date: new Date()
         });
@@ -40,7 +40,7 @@ router.put('/friendRequest', (req, res) => {
         session.close();
       })
       .catch(err => {
-        logger.error('Could not update (decline) friend request', {
+        logger.error('Internal Neo4j Failure - Could Not Update (Decline) Friend Request', {
           error: err,
           date: new Date()
         });

@@ -3,6 +3,8 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
+const logger = require('../helpers/logger');
+
 dotenv.config();
 
 // Load models
@@ -17,6 +19,11 @@ router.get('/', (req, res) => {
     if (err === null && user !== null) {
       res.status(200).send();
     } else {
+      logger.warn('Invalid Account Activation Code', {
+        ip: req.ip,
+        email: email,
+        date: new Date()
+      });
       res.status(400).send();
     }
   })

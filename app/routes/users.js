@@ -95,7 +95,7 @@ router.post('/', (req, res) => {
                           mailer.sendEmailVerification(userData.email, userData.activationCode)
                         } catch (e) {
                           logger.error('Verification email could not be sent', {
-                            error: err,
+                            error: e,
                             date: new Date
                           });
                           // TODO: mark that email as not sent and queue it in a task that resents it when possible
@@ -113,14 +113,24 @@ router.post('/', (req, res) => {
                   });
                 });
               } else {
-                res.status(400).send({message: "Email already used."}); // email in system
+                logger.info('Registration Failure - Duplicate Email', {
+                  email: userData.email,
+                  ip: req.ip,
+                  date: new Date
+                });
+                res.status(400).send({ message: "Email already used." }); // email in system
               }
             })
             .catch(() => {
               res.status(500).send();
             });
         } else {
-          res.status(400).send({message: "Insecure password."}); // password breached
+          logger.info('Registration Failure - Breached Password', {
+            password: userData.password,
+            ip: req.ip,
+            date: new Date
+          });
+          res.status(400).send({ message: "Insecure password." }); // password breached
         }
       })
       .catch(() => {
@@ -129,8 +139,10 @@ router.post('/', (req, res) => {
 
 
   } else {
-    logger.warn('Invalid registration data', {
+    delete userData.password;
+    logger.warn('Input Validation Failure - User Registration)', {
       registrationData: userData,
+      ip: req.ip,
       date: new Date
     });
     res.status(400).send();

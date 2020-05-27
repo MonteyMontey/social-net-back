@@ -23,14 +23,16 @@ router.post('/', (req, res) => {
           if (isMatch && err === null) {
             const id = user._id;
             const payload = { id };
-            const token = jwt.sign(payload, process.env.SECRET, {expiresIn: "1h"});
-            res.cookie('token', token, {secure: true, httpOnly: true, domain: "social-net.tech", maxAge: 3600000 }).sendStatus(200);
+            const token = jwt.sign(payload, process.env.SECRET, { expiresIn: "1h" });
+            res.cookie('token', token, { secure: true, httpOnly: true, domain: "social-net.tech", maxAge: 3600000 }).sendStatus(200);
             logger.info('User logged in', {
+              ip: req.ip,
               user: user,
               date: new Date()
             });
           } else {
             logger.warn('Invalid password', {
+              ip: req.ip,
               email: email,
               date: new Date()
             });
@@ -39,14 +41,16 @@ router.post('/', (req, res) => {
         }
         );
       } else {
-        logger.info('Non active user tried to log in', {
+        logger.info('Non Active User Tried To Log In', {
+          ip: req.ip,
           user: user,
           date: new Date()
         });
         res.status(403).send(); // 403 = Forbidden
       }
     } else {
-      logger.warn('User login not found', {
+      logger.info('User Login Not Found', {
+        ip: req.ip,
         email: email,
         date: new Date()
       });
