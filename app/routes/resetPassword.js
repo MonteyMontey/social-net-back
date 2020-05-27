@@ -116,7 +116,15 @@ router.get('/', (req, res) => {
       // wait until all callbacks finished
       waitForCallbacks = () => {
         if (callbackCounter === 0) {
-          valid ? res.status(200).send({ resetIDHash: resetIDHash }) : res.status(400).send();
+          if (valid) {
+            res.status(200).send({ resetIDHash: resetIDHash })
+          } else {
+            logger.warn('Invalid Password Reset Link', {
+              ip: req.ip,
+              date: new Date
+            });
+            res.status(400).send();
+          }
         } else {
           setTimeout(waitForCallbacks, 100);
         }
