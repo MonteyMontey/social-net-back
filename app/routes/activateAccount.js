@@ -21,7 +21,7 @@ router.get('/', (req, res) => {
     } else {
       logger.warn('Invalid Account Activation Code', {
         ip: req.ip,
-        email: email,
+        activationCode: activationCode,
         date: new Date()
       });
       res.status(400).send();
